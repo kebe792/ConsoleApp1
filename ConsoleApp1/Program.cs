@@ -8,10 +8,13 @@ namespace ConsoleApp1
     {
         static void Main(string[] args)
         {
-            bool End = false, Flag = false;
             Random rnd = new Random();
             int[] Invoice = new int[5];
             List<Account> Ledger = new List<Account>();
+            int Reent = 0;
+
+            //testing respository
+
 
             try
             {
@@ -19,7 +22,8 @@ namespace ConsoleApp1
                 using (var File = new StreamReader("AccountsDetails.txt"))
                 {
                     // Read the stream as a string, and write the string to the console.
-                    for (int i = 0; i != 15; i++)
+
+                    while (File.EndOfStream != true)
                     {
                         String test = File.ReadLine();
                         string[] subs = test.Split(',');
@@ -35,11 +39,72 @@ namespace ConsoleApp1
             } // Import Customer Information
 
 
-            Screen.Mainscreen();
+
+            while (Reent != 3)
+            {
+                Screen.Mainscreen();
+
+                String Entry = Console.ReadLine();
+                Reent = Convert.ToInt32(Entry);
+
+                switch (Reent)
+                {
+                    case 1:
+                        String Acc = "";
+
+                        while (Acc != "Q")
+                        {
+                            Console.WriteLine("Please input the customer number or Q to quit:");
+                            Acc = Console.ReadLine();
+                            Acc = Acc.ToUpper();
+
+                            if (Acc == "Q")
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    for (int i = 0; i != Ledger.Count; i++)
+                                    {
+
+                                        if (String.Compare(Acc, Ledger[i].AccNumber) == 0)
+                                        {
+                                            Console.WriteLine(Ledger[i].AccName + "\n" + Ledger[i].AccNumber + "\n" + Ledger[i].Address + "\n" + Ledger[i].EmailAdd + "\n" + Ledger[i].PhoneNum);
+                                            Acc = null;
+                                            Console.WriteLine("");
+                                            break;
+                                        }
+                                        if (i == Ledger.Count - 1)
+                                        {
+                                            Console.WriteLine("That is not a valid account number..");
+                                        }
+                                    }
+                                }
+                                catch { }
+                            }
+                        }
+                        break;
+
+                    case 2:
+
+                        Console.WriteLine("Please input the customer number:");
 
 
 
 
+                        break;
+
+                    case 3:
+                        System.Environment.Exit(1);
+                        break;
+
+                    default:
+                        Console.WriteLine("Invalid input");
+                        break;
+                }
+            }
 
 
         }
@@ -74,11 +139,10 @@ public class Screen
     public static void Mainscreen()
     {
         Console.WriteLine("1. Account Information");
-        Console.WriteLine("1. Invoice List");
-
+        Console.WriteLine("2. Invoice List");
+        Console.WriteLine("3. End Program");
+        Console.WriteLine("Entry: ");
         return;
     }
-
-
 
 }
