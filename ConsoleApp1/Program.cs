@@ -13,8 +13,7 @@ namespace ConsoleApp1
             List<Account> Ledger = new List<Account>();
             int Reent = 0;
 
-            //testing respository
-            //testing this again
+
 
             try
             {
