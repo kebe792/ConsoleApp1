@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 
@@ -11,6 +12,8 @@ namespace ConsoleApp1
         {
             List<Account> Ledger = new List<Account>();
             List<Invoice_Controll> InvList = new List<Invoice_Controll>();
+            List<String> Search_Record = new List<String>();
+            Search_Record.Add("Basic");
             var Reent = 0;
 
             try
@@ -28,6 +31,7 @@ namespace ConsoleApp1
 
                     }
                 }
+
             }
             catch (IOException e)
             {
@@ -87,36 +91,59 @@ namespace ConsoleApp1
 
                     case 2:
                         Reent = 0;
-                        Boolean flag = false;
+                        Boolean Import_flag = false;
+                        Boolean Search_flag= false;
+
                         Console.WriteLine("Please input the customer number:");
                         String AccSearch = Console.ReadLine();
                         AccSearch += ".txt";
 
-                        try
+                        for (int i = 0; i != Search_Record.Count; i++)
                         {
-                            // Open the text file using a stream reader.
-                            using (var InvFile = new StreamReader(AccSearch))
+                            if (String.Compare(Search_Record[i], AccSearch) == 0)
                             {
-                                while (InvFile.EndOfStream != true)
-                                {
-                                    String tests = InvFile.ReadLine();
-                                    string[] subss = tests.Split(',');
-                                    InvList.Add(new Invoice_Controll(int.Parse(subss[0]), int.Parse(subss[1]), int.Parse(subss[2])));
-                                }
+                                Search_flag = true;
+                                Import_flag = true;
                             }
-                            flag = true;
-                            for (int i = 0; i != InvList.Count; i++)
+                        }
+
+
+                        if (Search_flag == false)
+                        {
+                            try
+                            {
+                                // Open the text file using a stream reader.
+                                using (var InvFile = new StreamReader(AccSearch))
+                                {
+                                    while (InvFile.EndOfStream != true)
+                                    {
+                                        String tests = InvFile.ReadLine();
+                                        string[] subss = tests.Split(',');
+                                        InvList.Add(new Invoice_Controll(int.Parse(subss[0]), int.Parse(subss[1]), int.Parse(subss[2]), int.Parse(subss[3])));
+                                    }
+                                }
+                                Search_Record.Add(AccSearch);
+                                Import_flag = true;
+                            }
+
+                            catch (IOException e)
+                            {
+                                Console.WriteLine("The file could not be read:");
+                                Console.WriteLine(e.Message);
+                            } // No file with that name
+                        }
+
+
+                        for (int i = 0; i != InvList.Count; i++)
+                        {
+                            if (InvList[i].Acc_Indicator == int.Parse(AccSearch.Remove(6)))
                             {
                                 Console.WriteLine("Invoice Number:" + InvList[i].InvNumber + " | " + "Original Amount: $" + InvList[i].Inv_Orig_Amount + " | " + "Remainging Amount: $" + InvList[i].Inv_Rem_Amount);
                             }
-                        }
-                        catch (IOException e)
-                        {
-                            Console.WriteLine("The file could not be read:");
-                            Console.WriteLine(e.Message);
-                        } // No file with that name
+                         }
 
-                        if (flag == true)
+
+                        if (Import_flag == true)
                         {
                             Console.WriteLine("\n" + "Would you like to pay an invoice on account " + AccSearch.Remove(6) + "[Y/N]");
                             String Response = Console.ReadLine();
@@ -131,20 +158,34 @@ namespace ConsoleApp1
                                     if (InvList[i].InvNumber == InvSearch)
                                     {
                                         InvList[i].Inv_Rem_Amount = 0;
+                                        Console.WriteLine("This invoice has now been paid!");
                                     }
                                 }
                                 using (StreamWriter writer = new StreamWriter(AccSearch))
-                                {
-                                    for (int i = 0; i != InvList.Count; i++) {
-                                        writer.WriteLine(InvList[i].InvNumber + "," + InvList[i].Inv_Orig_Amount + "," + InvList[i].Inv_Rem_Amount);
+                                {   
+
+                                    for (int i = 0; i != InvList.Count; i++) 
+                                    {
+                                        if (InvList[i].Acc_Indicator == int.Parse(AccSearch.Remove(6)))
+                                        {
+                                            writer.WriteLine(InvList[i].Acc_Indicator + "," + InvList[i].InvNumber + "," + InvList[i].Inv_Orig_Amount + "," + InvList[i].Inv_Rem_Amount);
+                                        }
                                     }
+
                                 }
                             }
                         }
 
                         break;
 
+
                     case 3:
+
+
+                        break;
+
+
+                    case 4:
                         System.Environment.Exit(1);
                         break;
 
@@ -183,12 +224,14 @@ public class Account
 
 public class Invoice_Controll
 {
-    public int InvNumber;
-    public int Inv_Orig_Amount;
-    public int Inv_Rem_Amount;
+    public int? Acc_Indicator;
+    public int? InvNumber;
+    public int? Inv_Orig_Amount;
+    public int? Inv_Rem_Amount;
 
-    public Invoice_Controll(int InvNumber,int Inv_Orig_Amount,int Inv_Rem_Amount)
+    public Invoice_Controll(int Acc_Indicator, int InvNumber,int Inv_Orig_Amount,int Inv_Rem_Amount)
     {
+        this.Acc_Indicator = Acc_Indicator;
         this.InvNumber = InvNumber;
         this.Inv_Orig_Amount = Inv_Orig_Amount;
         this.Inv_Rem_Amount = Inv_Rem_Amount;
@@ -213,7 +256,8 @@ public class Screen
     {
         Console.WriteLine("1. Account Information");
         Console.WriteLine("2. Invoice List");
-        Console.WriteLine("3. End Program");
+        Console.WriteLine("3. Make a Purchase");
+        Console.WriteLine("4. End Program");
         Console.WriteLine("Entry: ");
         return;
     }
